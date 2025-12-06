@@ -438,6 +438,7 @@ export default function HomePage() {
                 para correr, entrenar o completar tu outfit con el sello
                 inconfundible de Nike.
               </p>
+              <h3>Hecha por: Henry potes largacha</h3>
             </div>
 
             {/* BOTÓN CARRITO (NAV) */}
