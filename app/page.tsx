@@ -428,6 +428,7 @@ export default function HomePage() {
               <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">
                 Nike Store
               </h1>
+              <h3 className="font-bold text-gray-500">Hecha por: Henry potes largacha</h3>
               <p className="max-w-2xl text-sm text-slate-600">
                 Somos una tienda especializada en zapatillas Nike 100% Somos una
                 tienda especializada en zapatillas Nike 100% originales, pensada
@@ -438,7 +439,6 @@ export default function HomePage() {
                 para correr, entrenar o completar tu outfit con el sello
                 inconfundible de Nike.
               </p>
-              <h3>Hecha por: Henry potes largacha</h3>
             </div>
 
             {/* BOTÓN CARRITO (NAV) */}
