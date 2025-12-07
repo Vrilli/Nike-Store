@@ -7,6 +7,9 @@ import type { ChangeEvent, FormEvent } from "react";
 // Tipos
 // =======================
 
+type Route = "home" | "about" | "contact";
+type StoreView = "catalog" | "cart" | "detail";
+
 type Product = {
   id: string;
   name: string;
@@ -21,8 +24,6 @@ type CartLine = {
   productId: string;
   quantity: number;
 };
-
-type View = "catalog" | "cart" | "detail";
 
 // =======================
 // Data inicial (zapatillas Nike)
@@ -285,14 +286,98 @@ const INITIAL_PRODUCTS: Product[] = [
 ];
 
 // =======================
+// Navbar
+// =======================
+
+interface NavbarProps {
+  route: Route;
+  onNavigate: (route: Route) => void;
+  cartCount: number;
+  onCartClick: () => void;
+}
+
+function Navbar({ route, onNavigate, cartCount, onCartClick }: NavbarProps) {
+  const baseLinkClass =
+    "rounded-full px-3 py-1 text-sm font-medium transition-colors";
+
+  const linkClass = (r: Route) =>
+    `${baseLinkClass} ${
+      route === r
+        ? "bg-slate-900 text-white"
+        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+    }`;
+
+  return (
+    <nav className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        {/* Logo / Nombre */}
+        <div className="flex items-center gap-2">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
+            N
+          </span>
+          <div className="flex flex-col leading-tight">
+            <span className="text-sm font-semibold text-slate-900">
+              Nike Monochrome Store
+            </span>
+            <span className="text-[11px] text-slate-500">
+              Zapatillas Nike 100% originales
+            </span>
+          </div>
+        </div>
+
+        {/* Menú + carrito */}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => onNavigate("home")}
+            className={linkClass("home")}
+          >
+            Home
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigate("about")}
+            className={linkClass("about")}
+          >
+            Acerca de
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigate("contact")}
+            className={linkClass("contact")}
+          >
+            Contáctanos
+          </button>
+
+          <button
+            type="button"
+            onClick={onCartClick}
+            className="relative inline-flex flex-col items-end rounded-2xl border border-slate-300 bg-white px-3 py-2 text-[11px] font-semibold text-slate-800 shadow-sm shadow-slate-200 hover:bg-slate-50"
+          >
+            <span className="text-[11px] uppercase tracking-wide text-slate-500">
+              Carrito
+            </span>
+            <span className="text-sm font-bold text-slate-900">
+              {cartCount} item(s)
+            </span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// =======================
 // Página principal
 // =======================
 
 export default function HomePage() {
+  const [route, setRoute] = useState<Route>("home");
+  const [storeView, setStoreView] = useState<StoreView>("catalog");
+
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [cart, setCart] = useState<CartLine[]>([]);
-  const [view, setView] = useState<View>("catalog");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const totalItems = cart.reduce((acc, line) => acc + line.quantity, 0);
@@ -336,7 +421,7 @@ export default function HomePage() {
     }
     if (selectedProduct?.id === id) {
       setSelectedProduct(null);
-      setView("catalog");
+      setStoreView("catalog");
     }
   };
 
@@ -393,25 +478,44 @@ export default function HomePage() {
 
     alert("✅ Venta exitosa. ¡Gracias por tu compra!");
     setCart([]);
-    setView("catalog");
+    setStoreView("catalog");
   };
 
   // =======================
-  // Navegación
+  // Navegación tienda
   // =======================
 
   const handleViewProductDetail = (product: Product) => {
     setSelectedProduct(product);
-    setView("detail");
+    setStoreView("detail");
   };
 
   const goToCatalog = () => {
-    setView("catalog");
+    setStoreView("catalog");
     setSelectedProduct(null);
   };
 
   const goToCart = () => {
-    setView("cart");
+    setStoreView("cart");
+  };
+
+  // =======================
+  // Navegación global (menú)
+  // =======================
+
+  const handleNavigate = (next: Route) => {
+    setRoute(next);
+    if (next !== "home") {
+      // cuando salimos de la tienda dejamos el catálogo listo
+      setStoreView("catalog");
+      setSelectedProduct(null);
+      setEditingProduct(null);
+    }
+  };
+
+  const handleCartClickFromNavbar = () => {
+    setRoute("home");
+    setStoreView("cart");
   };
 
   // =======================
@@ -420,88 +524,100 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-slate-100">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8">
-        {/* HEADER */}
-        <header className="space-y-3">
-          <div className="flex items-center justify-between gap-4">
+      <Navbar
+        route={route}
+        onNavigate={handleNavigate}
+        cartCount={totalItems}
+        onCartClick={handleCartClickFromNavbar}
+      />
+
+      {/* CONTENIDO SEGÚN RUTA */}
+      {route === "home" && (
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8">
+          {/* HEADER HOME */}
+          <header className="space-y-3">
             <div className="space-y-3">
+
               <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">
-                Nike Store
+                Nike Monochrome Store
               </h1>
-              <h3 className="font-bold text-gray-500">Hecha por: Henry potes largacha</h3>
               <p className="max-w-2xl text-sm text-slate-600">
-                Somos una tienda especializada en zapatillas Nike 100% Somos una
-                tienda especializada en zapatillas Nike 100% originales, pensada
-                para quienes viven el deporte y el estilo urbano todos los días.
-                Trabajamos únicamente con referencias auténticas, cuidando cada
-                detalle: calidad, confort y diseño. En nuestra tienda
-                encontrarás modelos clásicos y lanzamientos modernos, ideales
-                para correr, entrenar o completar tu outfit con el sello
-                inconfundible de Nike.
+                Somos una tienda especializada en zapatillas Nike 100%
+                originales, pensada para quienes viven el deporte y el estilo
+                urbano todos los días. Aquí puedes gestionar el catálogo, ver
+                detalles de cada modelo y simular compras en un carrito
+                funcional.
               </p>
             </div>
+          </header>
 
-            {/* BOTÓN CARRITO (NAV) */}
-            <button
-              type="button"
-              onClick={goToCart}
-              className="relative inline-flex flex-col items-end rounded-2xl border border-slate-300 bg-white px-4 py-3 text-xs font-semibold text-slate-800 shadow-sm shadow-slate-200 hover:bg-slate-50"
-            >
-              <span className="text-[11px] uppercase tracking-wide text-slate-500">
-                Carrito
-              </span>
-              <span className="text-sm font-bold text-slate-900">
-                {totalItems} artículo(s)
-              </span>
-            </button>
-          </div>
-        </header>
-
-        {/* VISTAS */}
-        {view === "catalog" && (
-          <section className="grid gap-6 lg:grid-cols-[minmax(0,2.1fr)_minmax(0,1fr)]">
-            {/* Columna de productos */}
-            <div className="space-y-4">
-              {/* Formulario CRUD */}
-              <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/80">
-                <div className="mb-3 flex items-start justify-between gap-2">
-                  <div>
-                    <h2 className="text-sm font-semibold text-slate-900">
-                      Gestión de catálogo
-                    </h2>
-                    <p className="text-xs text-slate-600">
-                      Crea, edita o elimina modelos de zapatillas Nike.
-                    </p>
+          {/* VISTAS DE LA TIENDA */}
+          {storeView === "catalog" && (
+            <section className="grid gap-6 lg:grid-cols-[minmax(0,2.1fr)_minmax(0,1fr)]">
+              {/* Columna de productos */}
+              <div className="space-y-4">
+                {/* Formulario CRUD */}
+                <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/80">
+                  <div className="mb-3 flex items-start justify-between gap-2">
+                    <div>
+                      <h2 className="text-sm font-semibold text-slate-900">
+                        Gestión de catálogo
+                      </h2>
+                      <p className="text-xs text-slate-600">
+                        Crea, edita o elimina modelos de zapatillas Nike.
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-700">
+                      {products.length} modelos
+                    </span>
                   </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-700">
-                    {products.length} modelos
-                  </span>
-                </div>
 
-                <ProductForm
-                  key={editingProduct?.id ?? "create"}
-                  editingProduct={editingProduct}
-                  onCreate={handleCreateProduct}
-                  onUpdate={handleUpdateProduct}
-                  onCancelEdit={() => setEditingProduct(null)}
-                />
-              </section>
+                  <ProductForm
+                    key={editingProduct?.id ?? "create"}
+                    editingProduct={editingProduct}
+                    onCreate={handleCreateProduct}
+                    onUpdate={handleUpdateProduct}
+                    onCancelEdit={() => setEditingProduct(null)}
+                  />
+                </section>
 
-              {/* Grid de productos */}
-              <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/80">
-                <ProductGrid
+                {/* Grid de productos */}
+                <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/80">
+                  <ProductGrid
+                    products={products}
+                    cart={cart}
+                    onAddToCart={handleAddToCart}
+                    onEdit={setEditingProduct}
+                    onDelete={handleDeleteProduct}
+                    onViewDetail={handleViewProductDetail}
+                  />
+                </section>
+              </div>
+
+              {/* Carrito lateral */}
+              <aside className="h-fit rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/80 lg:sticky lg:top-6">
+                <CartSidebar
                   products={products}
                   cart={cart}
-                  onAddToCart={handleAddToCart}
-                  onEdit={setEditingProduct}
-                  onDelete={handleDeleteProduct}
-                  onViewDetail={handleViewProductDetail}
+                  totalItems={totalItems}
+                  totalPrice={totalPrice}
+                  onChangeQuantity={handleChangeCartQuantity}
+                  onRemoveItem={handleRemoveFromCart}
+                  onCheckout={handleCheckout}
                 />
-              </section>
-            </div>
+                <button
+                  type="button"
+                  onClick={goToCart}
+                  className="mt-3 w-full rounded-full border border-slate-300 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-700 hover:bg-slate-50"
+                >
+                  Ver carrito en vista completa
+                </button>
+              </aside>
+            </section>
+          )}
 
-            {/* Carrito lateral */}
-            <aside className="h-fit rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/80 lg:sticky lg:top-6">
+          {storeView === "cart" && (
+            <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/80">
               <CartSidebar
                 products={products}
                 cart={cart}
@@ -510,37 +626,27 @@ export default function HomePage() {
                 onChangeQuantity={handleChangeCartQuantity}
                 onRemoveItem={handleRemoveFromCart}
                 onCheckout={handleCheckout}
+                showBackButton
+                onBackToShop={goToCatalog}
               />
-            </aside>
-          </section>
-        )}
+            </section>
+          )}
 
-        {view === "cart" && (
-          <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/80">
-            <CartSidebar
-              products={products}
-              cart={cart}
-              totalItems={totalItems}
-              totalPrice={totalPrice}
-              onChangeQuantity={handleChangeCartQuantity}
-              onRemoveItem={handleRemoveFromCart}
-              onCheckout={handleCheckout}
-              showBackButton
-              onBackToShop={goToCatalog}
-            />
-          </section>
-        )}
+          {storeView === "detail" && selectedProduct && (
+            <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/80">
+              <ProductDetail
+                product={selectedProduct}
+                onBack={goToCatalog}
+                onAddToCart={() => handleAddToCart(selectedProduct.id)}
+              />
+            </section>
+          )}
+        </div>
+      )}
 
-        {view === "detail" && selectedProduct && (
-          <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/80">
-            <ProductDetail
-              product={selectedProduct}
-              onBack={goToCatalog}
-              onAddToCart={() => handleAddToCart(selectedProduct.id)}
-            />
-          </section>
-        )}
-      </div>
+      {route === "about" && <AboutView />}
+
+      {route === "contact" && <ContactView />}
     </main>
   );
 }
@@ -836,7 +942,7 @@ function ProductGrid({
                   <h3 className="text-sm font-semibold text-slate-900">
                     {product.name}
                   </h3>
-                  <p className="text-xs text-slate-600 line-clamp-3">
+                  <p className="text-xs text-slate-600">
                     {product.description}
                   </p>
                 </div>
@@ -1106,5 +1212,153 @@ function ProductDetail({ product, onBack, onAddToCart }: ProductDetailProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+// =======================
+// Vista "Acerca de"
+// =======================
+
+function AboutView() {
+  return (
+    <section className="mx-auto max-w-4xl px-4 py-10">
+      <h2 className="mb-4 text-2xl font-bold text-slate-900">
+        Acerca de nuestra tienda
+      </h2>
+      <div className="space-y-3 text-sm leading-relaxed text-slate-700">
+        <p>
+          Somos una tienda especializada en zapatillas Nike 100% originales,
+          pensada para quienes viven el deporte y el estilo urbano todos los
+          días. Trabajamos únicamente con referencias auténticas, cuidando cada
+          detalle: calidad, confort y diseño. En nuestra tienda encontrarás
+          modelos clásicos y lanzamientos modernos, ideales para correr,
+          entrenar o completar tu outfit con el sello inconfundible de Nike.
+        </p>
+        <p>
+          Nuestra tienda nació de una idea sencilla: ofrecer tenis originales en
+          un espacio donde la confianza y la experiencia del cliente fueran lo
+          primero. Durante años vimos cómo muchas personas compraban sneakers
+          sin estar seguras de su autenticidad, sin asesoría y sin información
+          clara sobre el modelo que realmente necesitaban. De esa necesidad
+          surgió este proyecto, creado por amantes del deporte y del streetwear.
+        </p>
+        <p>
+          Desde el inicio nos propusimos tres pilares: autenticidad, comodidad y
+          acompañamiento. Autenticidad, porque trabajamos solo con productos
+          originales y proveedores confiables. Comodidad, porque elegimos
+          modelos que acompañen tu ritmo de vida: correr, entrenar, estudiar,
+          trabajar o simplemente caminar por la ciudad. Y acompañamiento, porque
+          queremos que cada cliente sepa qué está comprando y para qué le sirve
+          ese modelo.
+        </p>
+        <p>
+          Hoy, nuestra tienda es un punto de encuentro para runners,
+          coleccionistas, amantes del streetwear y personas que simplemente
+          quieren un par de Nike que les dure, se sienta bien y refleje su
+          estilo. No buscamos solo vender zapatillas, sino construir una
+          relación a largo plazo, paso a paso, pisada a pisada, contigo.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// =======================
+// Vista "Contáctanos"
+// =======================
+
+function ContactView() {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    alert(
+      "Mensaje enviado. Pronto te responderemos."
+    );
+  };
+
+  return (
+    <section className="mx-auto max-w-4xl px-4 py-10">
+      <h2 className="mb-4 text-2xl font-bold text-slate-900">Contáctanos</h2>
+      <p className="mb-4 text-sm text-slate-700">
+        Si tienes dudas sobre tallas, modelos, disponibilidad o quieres asesoría
+        para elegir tus próximas Nike, déjanos un mensaje y te responderemos lo
+        antes posible (en esta demo solo verás una alerta).
+      </p>
+
+      <div className="grid gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-3 rounded-2xl bg-white p-4 shadow-lg shadow-slate-200/80 ring-1 ring-slate-200"
+        >
+          <div className="flex flex-col gap-1 text-sm">
+            <label className="font-semibold text-slate-800" htmlFor="name">
+              Nombre
+            </label>
+            <input
+              id="name"
+              name="name"
+              required
+              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300"
+              placeholder="Tu nombre completo"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1 text-sm">
+            <label className="font-semibold text-slate-800" htmlFor="email">
+              Correo electrónico
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300"
+              placeholder="tucorreo@ejemplo.com"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1 text-sm">
+            <label className="font-semibold text-slate-800" htmlFor="message">
+              Mensaje
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              rows={4}
+              required
+              className="resize-none rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300"
+              placeholder="Cuéntanos qué modelo buscas, tu talla o tu duda..."
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="mt-2 w-full rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm shadow-slate-300 hover:bg-slate-800"
+          >
+            Enviar mensaje (demo)
+          </button>
+        </form>
+
+        <div className="space-y-3 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200 text-sm text-slate-700">
+          <h3 className="text-base font-semibold text-slate-900">
+            Información de contacto
+          </h3>
+          <p>
+            <span className="font-semibold">Correo:</span>{" "}
+            contacto@nike-monochrome.store
+          </p>
+          <p>
+            <span className="font-semibold">WhatsApp:</span> +57 300 000 0000
+          </p>
+          <p>
+            <span className="font-semibold">Horario:</span> Lunes a sábado, 9:00
+            a.m. – 7:00 p.m.
+          </p>
+          <p className="text-xs text-slate-500">
+            *Este es un proyecto demo sin conexión real a sistemas de Nike ni
+            pasarela de pago.
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }
