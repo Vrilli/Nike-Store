@@ -303,16 +303,16 @@ function Navbar({ route, onNavigate, cartCount, onCartClick }: NavbarProps) {
   const linkClass = (r: Route) =>
     `${baseLinkClass} ${
       route === r
-        ? "bg-slate-900 text-white"
-        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+        ? "bg-sky-500 text-white"
+        : "text-slate-700 hover:bg-sky-100 hover:text-slate-900"
     }`;
 
   return (
-    <nav className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+    <nav className="sticky top-0 z-20 border-b border-slate-200 bg-sky-100/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         {/* Logo / Nombre */}
         <div className="flex items-center gap-2">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-sky-500 text-xs font-bold text-white">
             N
           </span>
           <div className="flex flex-col leading-tight">
@@ -506,7 +506,6 @@ export default function HomePage() {
   const handleNavigate = (next: Route) => {
     setRoute(next);
     if (next !== "home") {
-      // cuando salimos de la tienda dejamos el catálogo listo
       setStoreView("catalog");
       setSelectedProduct(null);
       setEditingProduct(null);
@@ -523,7 +522,7 @@ export default function HomePage() {
   // =======================
 
   return (
-    <main className="min-h-screen bg-slate-100">
+    <main className="min-h-screen bg-sky-50">
       <Navbar
         route={route}
         onNavigate={handleNavigate}
@@ -537,7 +536,6 @@ export default function HomePage() {
           {/* HEADER HOME */}
           <header className="space-y-3">
             <div className="space-y-3">
-
               <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">
                 Nike Monochrome Store
               </h1>
@@ -836,7 +834,7 @@ function ProductForm({
       <div className="flex flex-wrap items-center gap-2 pt-1">
         <button
           type="submit"
-          className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white shadow-sm shadow-slate-300 hover:bg-slate-800"
+          className="inline-flex items-center justify-center rounded-full bg-sky-500 px-4 py-1.5 text-xs font-semibold text-white shadow-sm shadow-slate-300 hover:bg-sky-600"
         >
           {isEditing ? "Actualizar modelo" : "Crear modelo"}
         </button>
@@ -965,7 +963,7 @@ function ProductGrid({
                       type="button"
                       disabled={outOfStock}
                       onClick={() => onAddToCart(product.id)}
-                      className="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold text-white shadow-sm shadow-slate-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                      className="inline-flex items-center justify-center rounded-full bg-sky-500 px-3 py-1 text-[11px] font-semibold text-white shadow-sm shadow-slate-300 hover:bg-sky-600 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
                     >
                       {outOfStock ? "Sin stock" : "Añadir al carrito"}
                     </button>
@@ -1137,7 +1135,7 @@ function CartSidebar({
             <button
               type="button"
               onClick={onCheckout}
-              className="w-full rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm shadow-slate-300 hover:bg-slate-800"
+              className="w-full rounded-full bg-sky-500 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm shadow-slate-300 hover:bg-sky-600"
             >
               Finalizar compra (demo)
             </button>
@@ -1205,7 +1203,7 @@ function ProductDetail({ product, onBack, onAddToCart }: ProductDetailProps) {
           <button
             type="button"
             onClick={onAddToCart}
-            className="mt-1 w-full rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm shadow-slate-300 hover:bg-slate-800"
+            className="mt-1 w-full rounded-full bg-sky-500 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm shadow-slate-300 hover:bg-sky-600"
           >
             Añadir al carrito
           </button>
@@ -1270,9 +1268,7 @@ function AboutView() {
 function ContactView() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    alert(
-      "Mensaje enviado. Pronto te responderemos."
-    );
+    alert("Mensaje enviado. Pronto te responderemos.");
   };
 
   return (
@@ -1332,7 +1328,7 @@ function ContactView() {
 
           <button
             type="submit"
-            className="mt-2 w-full rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm shadow-slate-300 hover:bg-slate-800"
+            className="mt-2 w-full rounded-full bg-sky-500 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm shadow-slate-300 hover:bg-sky-600"
           >
             Enviar mensaje (demo)
           </button>
